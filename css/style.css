@@ -17,12 +17,17 @@ ul {
 	position: absolute;
 	width: 1200px;
 	height: 360px;
+	overflow: hidden;
 }
 .content li {
 	position: absolute;
 	background-size: 100% 100%;
 	cursor: pointer;
 	overflow: hidden;
+	margin: auto;
+	top: 0;
+	bottom: 0;
+	transition: all 0.4s linear;
 }
 .content li img {
 	width: 100%;
@@ -52,4 +57,19 @@ ul {
 }
 .next {
 	right: 30px;
+}
+
+.swiper-item.hide {
+	opacity: 0;
+	z-index: 1;
+}
+
+.swiper-item.show {
+	opacity: 0.8;
+	z-index: 2;
+}
+
+.swiper-item.show.active {
+	opacity: 1;
+	z-index: 3;
 }
