@@ -68,7 +68,7 @@ var swiperIt = {
       this.animate(this.contL[i], this.styleList[i])
     }
     if (this.config.slideChange) {
-      this.config.slideChange()
+      this.config.slideChange(this.activeIndex)
     }
   },
   next: function () {
