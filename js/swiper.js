@@ -7,6 +7,7 @@ var swiperIt = {
     var width = _this.config.width || 36
     var step = _this.config.step || 0.8
     this.styleList = []
+    this.cont = cont
     // 轮播图总数量
     this.contL = cont.children
     // 算出活跃项目
@@ -64,9 +65,17 @@ var swiperIt = {
     // 判断是否自动轮播
     if (_this.config.autoplay) {
       // 鼠标悬浮停止轮播
-      cont.onmouseover = _this.stopAutoPlay.bind(_this)
+      cont.addEventListener('mouseover', function (e) {
+        setTimeout(() => {
+          if (!_this.isPause) _this.stopAutoPlay()
+        }, 0);
+      }, true);
       // 鼠标移出开始轮播
-      cont.onmouseout = _this.startAutoPlay.bind(_this)
+      cont.addEventListener('mouseout', function () {
+        setTimeout(() => {
+          if (_this.isPause) _this.startAutoPlay()
+        }, 0);
+      }, false);
       // 当前窗口得到焦点
       window.onfocus = _this.startAutoPlay.bind(_this)
       // 当前窗口失去焦点
@@ -75,7 +84,26 @@ var swiperIt = {
         _this.startAutoPlay()
       }, 0)
     }
-
+    // 注册触摸事件
+    var touchMoveX = 0
+    var touchMoveXMove = 0
+    cont.addEventListener('touchstart', function (e) {
+      console.log('触摸开始!')
+      touchMoveX = e.touches[0].pageX
+      _this.isTouching = true
+    }, false);
+    cont.addEventListener('touchmove', function (e) {
+      touchMoveXMove = e.touches[0].pageX
+    }, false);
+    cont.addEventListener('touchend', function () {
+      console.log('触摸结束!', touchMoveXMove - touchMoveX)
+      if ((touchMoveXMove - touchMoveX) > 100) {
+        _this.prev()
+      } else if ((touchMoveXMove - touchMoveX) < -100) {
+        _this.next()
+      }
+      _this.isTouching = false
+    }, false);
     return this
   },
   startAutoPlay: function () {
@@ -83,7 +111,7 @@ var swiperIt = {
     if (this.timer) return
     // 开启自动轮播
     this.timer = setInterval(function () {
-      if (!_this.isPause) _this.next()
+      if (!_this.isPause && !_this.isTouching) _this.next()
     }, _this.config.autoplay)
     console.log('开启轮播!', _this.timer)
     // 事件回调
@@ -107,6 +135,7 @@ var swiperIt = {
       this.config.slideChange(this.activeIndex)
     }
   },
+  isTouching: false,
   // 暂停计时器
   isPause: null,
   next: function () {
@@ -131,12 +160,15 @@ var swiperIt = {
     this.isPause = setTimeout(() => {
       this.isPause = null
     }, 3000)
+    
     if (this.config.pagination) {
       this.config.pagination.children[this.activeIndex].classList.remove('active')
     }
     this.activeIndex--
+    
     if (this.activeIndex < 0) this.activeIndex = this.contL.length - 1
     this.styleList.push(this.styleList.shift())
+    this.move()
   },
   animate: function (obj, styleList, fn) {
     setTimeout(function () {
