@@ -83,7 +83,7 @@ var swiperIt = {
     if (this.timer) return
     // 开启自动轮播
     this.timer = setInterval(function () {
-      _this.next()
+      if (!_this.isPause) _this.next()
     }, _this.config.autoplay)
     console.log('开启轮播!', _this.timer)
     // 事件回调
@@ -107,23 +107,36 @@ var swiperIt = {
       this.config.slideChange(this.activeIndex)
     }
   },
+  // 暂停计时器
+  isPause: null,
   next: function () {
+    // 避免频繁刷新
+    if (this.isPause) clearTimeout(this.isPause)
+    this.isPause = setTimeout(() => {
+      this.isPause = null
+    }, 3000)
+    // 停止自动播放
     if (this.config.pagination) {
       this.config.pagination.children[this.activeIndex].classList.remove('active')
     }
+    
     this.activeIndex++
     if (this.activeIndex >= this.contL.length) this.activeIndex = 0
     this.styleList.unshift(this.styleList.pop())
     this.move()
   },
   prev: function () {
+    // 避免频繁刷新
+    if (this.isPause) clearTimeout(this.isPause)
+    this.isPause = setTimeout(() => {
+      this.isPause = null
+    }, 3000)
     if (this.config.pagination) {
       this.config.pagination.children[this.activeIndex].classList.remove('active')
     }
     this.activeIndex--
     if (this.activeIndex < 0) this.activeIndex = this.contL.length - 1
     this.styleList.push(this.styleList.shift())
-    this.move()
   },
   animate: function (obj, styleList, fn) {
     setTimeout(function () {
